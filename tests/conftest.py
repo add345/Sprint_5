@@ -1,18 +1,23 @@
+from urllib3 import request
+
+from data import login
 import pytest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 
-@pytest.fixture # фикстура, которая
-def login():
-    login = {'name': 'viva1', 'login': 'ekatherina_alexandrova_31@yandex.ru', 'password': '123456'}
-
-    return login
-
-
-@pytest.fixture # фикстура, которая
-def driver_login(login):
+@pytest.fixture(scope="function")
+def driver(request):
     driver = webdriver.Chrome()
+    request.cls.driver = driver
+    yield
+    driver.quit()
+
+
+@pytest.fixture(scope="function")
+def driver_login(request):
+    driver = webdriver.Chrome()
+
     driver.get("https://stellarburgers.nomoreparties.site/login")
 
     # Найди поле "Email" и заполни его
@@ -24,4 +29,8 @@ def driver_login(login):
     # Найди кнопку "Войти" и кликни по ней
     driver.find_element(By.CSS_SELECTOR, "form button").click()
 
-    return driver
+    request.cls.driver = driver
+
+    yield
+
+    driver.quit()
